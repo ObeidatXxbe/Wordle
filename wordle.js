@@ -5,7 +5,7 @@ const HEIGHT = 6;
 /* ===== Dictionary (loaded async) ===== */
 let WORDS = [];                 // filled from words.txt
 let ALL_ALLOWED = new Set();    // quick membership test
-const CACHE_KEY = "wordlist_cache_v1";
+const CACHE_KEY = "wordlist_cache_v2"; // bump to invalidate old cache
 
 /* Small fallback so a game can start before the big list loads */
 const FALLBACK = ["about","after","again","apple","audio","badge","beach","brown","clean","clock","earth","elite","favor","focus","front","grain","green","happy","hotel","image","judge","laser","light","local","magic","match","model","money","novel","olive","pasta","phase","pilot","plant","pride","queen","quick","radio","range","ratio","ready","robot","rough","royal","scale","scene","score","serve","smart","smile","smoke","solar","solid","sound","south","spice","spike","sport","stamp","stand","start","state","steel","stone","story","stove","style","table","tiger","title","total","touch","track","trend","trial","truck","trust","ultra","under","union","urban","value","video","vivid","vocal","watch","water","where","which","while","white","world","write","young","zonal"];
@@ -239,3 +239,4 @@ function toastMsg(msg){
   toast.classList.toggle('show', !!msg);
   if (msg) setTimeout(()=> toast.classList.remove('show'), 1400);
 }
+
