@@ -1,15 +1,14 @@
-
 /* ===== Config ===== */
 const WIDTH = 5;
 const HEIGHT = 6;
 
-/* ===== Dictionary (loaded async) ===== */
-let WORDS = [];                 // filled from words.txt
-let ALL_ALLOWED = new Set();    // quick membership test
-const CACHE_KEY = "wordlist_cache_v2"; // bump to invalidate old cache
+/* ===== Dictionary (loaded from words.txt) ===== */
+let WORDS = [];
+let ALL_ALLOWED = new Set();
+let wordsReady = false;
 
-/* Small fallback so a game can start before the big list loads */
-const FALLBACK = ["about","after","again","apple","audio","badge","beach","brown","clean","clock","earth","elite","favor","focus","front","grain","green","happy","hotel","image","judge","laser","light","local","magic","match","model","money","novel","olive","pasta","phase","pilot","plant","pride","queen","quick","radio","range","ratio","ready","robot","rough","royal","scale","scene","score","serve","smart","smile","smoke","solar","solid","sound","south","spice","spike","sport","stamp","stand","start","state","steel","stone","story","stove","style","table","tiger","title","total","touch","track","trend","trial","truck","trust","ultra","under","union","urban","value","video","vivid","vocal","watch","water","where","which","while","white","world","write","young","zonal"];
+// bump this if you change words.txt so cache invalidates
+const CACHE_KEY = "wordlist_cache_v4";
 
 /* ===== State ===== */
 let answer = "";
@@ -26,65 +25,71 @@ const toast = document.getElementById('toast');
 window.addEventListener('DOMContentLoaded', () => {
   // theme
   const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.classList.remove('theme-light','theme-dark');
-  document.documentElement.classList.add(savedTheme === 'dark' ? 'theme-dark' : 'theme-light');
+  document.documentElement.classList.toggle('theme-dark', savedTheme === 'dark');
+  document.documentElement.classList.toggle('theme-light', savedTheme !== 'dark');
 
   // controls
-  document.getElementById('new-game').addEventListener('click', newGame);
-  document.getElementById('theme-toggle').addEventListener('click', () => {
+  $('#new-game').addEventListener('click', () => { if (wordsReady) newGame(); });
+  $('#theme-toggle').addEventListener('click', () => {
     const isDark = document.documentElement.classList.contains('theme-dark');
     document.documentElement.classList.toggle('theme-dark', !isDark);
     document.documentElement.classList.toggle('theme-light', isDark);
     localStorage.setItem('theme', isDark ? 'light' : 'dark');
   });
 
-  document.addEventListener('keydown', onKey);
-
   // draw UI immediately
   drawKeyboard();
   buildBoard();
-  // start with fallback so it's playable right away
-  if (WORDS.length === 0) {
-    WORDS = [...FALLBACK];
-    ALL_ALLOWED = new Set(WORDS);
-  }
-  newGame();
+  toastMsg('Loading dictionary…');
 
-  // load the large dictionary in background (and cache it)
-  loadWordList();
+  // input
+  document.addEventListener('keydown', onKey);
+
+  // load the big list, then start
+  loadWordList().then(() => {
+    wordsReady = true;
+    toastMsg('');
+    newGame();
+  }).catch(err => {
+    console.error(err);
+    toastMsg('Could not load words.txt');
+  });
 });
 
 /* ===== Dictionary loading ===== */
 async function loadWordList() {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
+  // try cache first
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
       const list = JSON.parse(cached);
       if (Array.isArray(list) && list.length) {
         WORDS = list;
         ALL_ALLOWED = new Set(WORDS);
-        return; // already upgraded
+        return;
       }
-    }
-
-    const res = await fetch('words.txt', { cache: 'force-cache' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-
-    const list = text
-      .split(/\r?\n/)
-      .map(w => w.trim().toLowerCase())
-      .filter(w => /^[a-z]{5}$/.test(w));
-
-    if (list.length) {
-      WORDS = list;
-      ALL_ALLOWED = new Set(WORDS);
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(WORDS)); } catch {}
-      // If a fallback answer was active, silently choose a new one from big list next game
-    }
-  } catch (e) {
-    console.warn('Word list load failed, using fallback only.', e);
+    } catch {}
   }
+
+  // fetch fresh
+  const res = await fetch('words.txt', { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`words.txt HTTP ${res.status}`);
+
+  const text = await res.text();
+
+  // Your file already contains only 5-letter words, one per line.
+  // Normalize + drop empty lines (no regex filtering needed).
+  const list = text.split(/\r?\n/)
+    .map(w => w.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!list.length) throw new Error('words.txt is empty');
+
+  WORDS = list;
+  ALL_ALLOWED = new Set(WORDS);
+
+  // cache for faster next loads
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(WORDS)); } catch {}
 }
 
 /* ===== Board / Keyboard ===== */
@@ -127,24 +132,26 @@ function drawKeyboard() {
 
 /* ===== Game ===== */
 function pickWord() {
-  const list = WORDS && WORDS.length ? WORDS : FALLBACK;
-  return list[Math.floor(Math.random() * list.length)];
+  return WORDS[Math.floor(Math.random() * WORDS.length)];
 }
 
 function newGame() {
+  if (!WORDS.length) return;
   gameOver = false;
   row = 0; col = 0;
   toastMsg('');
   buildBoard();
+  // clear key states
   keyboardEl.querySelectorAll('.key').forEach(k => k.classList.remove('correct','present','absent'));
-  answer = pickWord(); // console.log('ANSWER', answer);
+  answer = pickWord();
+  // console.log('ANSWER', answer);
 }
 
 /* ===== Input Handling ===== */
 function onKey(e) {
-  if (gameOver) return;
+  if (!wordsReady || gameOver) return;
   const raw = e.key || '';
-  const key = raw.length === 1 ? raw.toLowerCase() : raw; // keep "Enter"/"Backspace"
+  const key = raw.length === 1 ? raw.toLowerCase() : raw; // keep Enter/Backspace names
 
   if (key === 'Enter') return submit();
   if (key === 'Backspace' || key === 'Delete') return backspace();
@@ -172,10 +179,7 @@ function submit() {
   if (col < WIDTH) { shakeRow(row); return toastMsg('Not enough letters'); }
 
   const guess = rowWord(row);
-  // allow guess if big list not ready yet but still enforce 5 letters
-  if (ALL_ALLOWED.size && !ALL_ALLOWED.has(guess)) {
-    shakeRow(row); return toastMsg('Not in word list');
-  }
+  if (!ALL_ALLOWED.has(guess)) { shakeRow(row); return toastMsg('Not in word list'); }
 
   const res = evaluate(guess, answer);
   revealRow(row, res);
@@ -240,4 +244,3 @@ function toastMsg(msg){
   toast.classList.toggle('show', !!msg);
   if (msg) setTimeout(()=> toast.classList.remove('show'), 1400);
 }
-
