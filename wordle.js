@@ -1,19 +1,57 @@
 /* ===== Config ===== */
-const WIDTH = 6;         // columns / word length
+const WIDTH = 5;         // columns / word length
 const HEIGHT = 6;        // guesses
 
-/* ===== Word Lists (6-letter) ===== */
-// Expand these freely — kept moderate here so the file stays readable.
+/* ===== Word Lists (5-letter) ===== */
+// Curated lists (you can expand as large as you like)
 const EASY = [
-  "animal","banana","planet","silver","little","spring","forest","castle","orange","bridge","cotton","bright","market","butter","window","simple","rocket","sudden","wonder","basket","poetry","school","nature","island","travel","cookie","social","yellow","violet","dragon","throat","button","stream","beauty","magnet","rental","safari","pepper","violet","socket","cheese","smooth","flight","camera","shield","flower","pillow","bucket","silent","gentle","friend","letter","family","honest","sunset","circle","garden","father","mother"
+  "apple","table","chair","light","plant","bread","smile","tiger","grape","house",
+  "candy","stone","music","water","sweet","green","beach","pilot","quiet","lemon",
+  "angel","party","train","zebra","clock","flute","piano","teeth","toast","brave",
+  "sunny","happy","mouse","panda","eagle","crown","sugar","cloud","river","dream",
+  "scale","sauce","pearl","honey","pizza","spice","jelly","shirt","spoon","couch",
+  "earth","tease","short","press","score","blend","siren","pride","frost","coast",
+  "flame","sweep","brown","mount","north","south","grand","globe","paper","proud",
+  "dance","plant","clean","smoke","store","wrist","march","bloom","prism","chase",
+  "sound","pilot","magic","lucky","smell","angel","tasty","local","fruit","value"
 ];
 
 const MEDIUM = [
-  "abrupt","admire","almost","anchor","anyone","archer","attack","beacon","behold","binder","boring","breath","cactus","camera","candle","casino","cattle","chance","charge","cipher","client","coffee","column","copper","costly","credit","cruise","danger","dealer","decent","define","demand","depart","device","differ","digital","dinner","doctor","donate","editor","empire","engine","escape","estate","export","fabric","factor","famous","figure","flavor","future","garage","genius","gentle","global","goblin","guitar","hammer","hazard","helmet","hidden","hinge","humble","impact","injury","insert","invite","irony","isomer","jungle","kingly","legend","letter","liquid","logger","magnet","marble","martyr","matrix","medium","memory","mentor","metallic","meteor","module","moment","museum","native","nobody","object","octave","oppose","oracle","packet","palace","pantry","parade","parent","permit","photon","picket","pirate","planet","plasma","poetry","police","powder","profit","puzzle","quartz","rabbit","random","ranger","reason","record","redeem","regain","remedy","rescue","rocket","roster","savage","scarce","screen","script","server","shadow","shrimp","signal","silent","singer","socket","sodium","spider","spirit","stable","stereo","stream","strong","symbol","temple","throne","ticket","tomato","tunnel","turkey","twenty","utopia","vacuum","velvet","victim","virtual","vision","voyage","wallet","weaver","whisky","window","winter","wizard","wonder","yellow","zipper"
+  "arise","ratio","admir","acorn","amber","apart","arena","asset","audio","banjo",
+  "basic","birth","brace","brisk","cabin","camel","cargo","carve","cause","chain",
+  "chaos","cheap","chess","cider","civic","claim","class","clear","cliff","close",
+  "coach","coral","craft","crane","crest","crown","daily","debut","delta","diner",
+  "drink","eager","elite","epoch","equal","fiber","fifth","flair","flock","flora",
+  "forge","frame","frost","gauge","giant","glide","gloss","golem","grace","graph",
+  "grave","greed","habit","haste","haunt","hinge","humor","index","infer","irony",
+  "ivory","judge","knack","label","laser","later","layer","lobby","logic","loyal",
+  "lumen","maker","mango","metal","micro","model","moral","mossy","needy","niche",
+  "ocean","olive","orbit","organ","other","oxide","panel","phase","photo","pixel",
+  "pride","prime","prize","pulse","quiet","quota","radii","radio","range","rebel",
+  "refer","relax","rhyme","ridge","rigid","riser","route","royal","ruler","saint",
+  "salad","scout","serve","shade","sharp","sheer","shelf","shiny","sigma","skirt",
+  "solar","solid","spare","spice","spine","spite","split","sport","stage","stare",
+  "stark","steam","stern","stork","story","swirl","their","thick","thorn","tidal",
+  "tiger","toast","topic","tower","trace","trend","trial","trophy","ultra","valid",
+  "vapor","velar","vivid","vocal","waltz","weary","wharf","wider","yacht","zonal"
 ];
 
 const HARD = [
-  "abjure","accede","accrue","admix","afflux","agogic","albite","alcove","alkane","alpaca","alpaca","ambush","ambery","amulet","anther","aphids","archly","argute","armory","astrag","augury","avulse","axilla","azuric","babble","ballad","bandit","baryon","bayous","bedlam","befoul","beluga","bemoan","bereft","blench","blight","borzoi","brumal","buxoms","byplay","calked","camber","canker","canzon","carmel","carnal","cartel","cation","cervid","chitin","choral","cipher","clayey","cleave","cloche","cloyed","coerce","corymb","creche","credal","cymbal","daedal","dagger","dainty","debris","decant","defied","deform","demote","depose","deputy","deride","descry","detain","dextro","diadem","dibble","dingle","dioxin","discos","disown","dither","docile","dourly","dovish","dreggy","dreich","drupes","dubbin","duende","dulcet","dulled","dumkas","eagled","earwax","echini","effigy","efflux","effuse","elapid","elides","eluvia","embank","embody","emboli","emetic","endive","enrols","entrap","estrin","ethoxy","evince","exilic","exilic","extant","fagots","faience","fauves","fealty","feints","felled","felony","ferule","fescue","festal","fetish","fetors","fettle","feudal","fibros","fibril","fibrin","ficain","fiscal","fizgig","flench","flocci","floret","flueys","fluish","foehns","foetid","forams","forged","fossae","foveae","fratch","frigid","friseé","frowst","fusees","gabion","gaddis","galeid","gamuts","ganoid","garote","gasmic","gaufre","gavels","gelato","gelcap","geminal","gemmry","ghazal","ghibli","gibing","gingko","glaire","glioma","glitch","gluons","gnomon","gourde","gramme","gravid","griset","groats","guerre","gulden","gundog","guyots","gyttja","halide","halite","hancek","hapten","harrow","heliac","helion","henbane","hermit","hexane","hexing","hexose","hoagie","hodads","hombre","holmia","hydria","ikaros","imaret","imbeds","imbued","immure","inepta","inepts","ingots","iambus","intent","iodate","iambic","irrupt","isogon","jesses","jicama","jejune","jinked","jocose","jotuns","judder","kanban","karsts","kebabs","kelvin","kermis","ketone","khakis","kibitz","klaxon","koalas","kroner","kshirs","kumiss","lacuna","lactam","lagena","larvae","lazuli","legume","lemmas","lemurs","lesion","lepton","liqueur","lithic","lutron","lyceum","lycras","macron","madras","mafias","maglev","magmas","mantra","marcel","marque","mastic","mastix","matrix","megrim","megohm","menhir","merlon","miasma","micros","midrib","mignon","mimesis","minyan","mislay","mizzen","moiety","mollah","mollus","muonic","myrtal","myxoma","nectar","nectin","ningbo","nitrid","nixies","nodule","noyade","nubuck","nudest","nuptia","nylons","octopi","oculus","oilman","olefin","omegas","ondine","onyxes","oozier","opaque","ophite","oppugn","oracle","orache","orgone","ossify","overdo","owler","oxeyes","oxides","oximes","oxygen","oxymel","oxygen","pablum","pacify","packet","padauk","paella","paiute","palter","panzer","papaws","papaya","papule","parens","parian","parlay","parley","parlor","parred","parsec","parson","parton","paschal","paeans"
+  "aphid","askew","azure","banal","baton","belie","bland","brine","cadet","caper",
+  "cavil","chafe","chute","cider","cinch","civic","clack","cleft","clout","coyly",
+  "crass","crypt","cubic","cumin","cutie","deign","detox","dirge","droit","droll",
+  "dross","dully","dwarf","ennui","epoxy","epoch","ethic","fetid","fjord","fleck",
+  "frock","gaffe","gawky","giddy","gipsy","glyph","gnash","gouge","groin","guile",
+  "haute","hinge","hyena","icily","idyll","inert","irate","joust","kiosk","knoll",
+  "knife","kudos","lager","lapel","lilac","limbo","lingo","lithe","lucid","lurch",
+  "macho","madam","magma","manor","maxim","masse","miser","modal","nadir","nymph",
+  "obese","octal","omega","onset","oxide","parse","patio","pearl","pecan","pesky",
+  "piety","pivot","plaid","pleat","prism","quail","quart","quirk","rabid","radii",
+  "raven","recut","rehab","relic","ripen","rivet","rogue","rough","rumba","sally",
+  "scald","scorn","shire","sieve","skein","sleek","sloop","sloth","smite","snare",
+  "snout","sooty","spear","squad","stave","stilt","suave","sushi","swath","tacit",
+  "taint","taper","terse","thorn","trice","tryst","umbra","unmet","usurp","vigor",
+  "vixen","vodka","vouch","waltz","wharf","wrung","xerox","yodel","zesty","zonal"
 ];
 
 const ALL_ALLOWED = new Set([...EASY, ...MEDIUM, ...HARD].map(w => w.toLowerCase()));
@@ -146,7 +184,7 @@ function submit() {
 
   // Evaluate
   const res = evaluate(guess, answer);
-  revealRow(row, res);
+  revealRow(row, res); // no flip animation
 
   if (res.every(s => s === 'correct')) {
     gameOver = true; toastMsg('You got it!'); return;
@@ -188,13 +226,11 @@ function evaluate(guess, target) {
 }
 
 function revealRow(r, states) {
+  // No flip animation: just apply classes with a small stagger
   for (let c = 0; c < WIDTH; c++) {
     const t = tile(r,c);
     const s = states[c];
-    setTimeout(() => {
-      t.classList.add('flip');
-      setTimeout(() => { t.classList.add(s); updateKey(t.textContent, s); }, 300);
-    }, c * 180);
+    setTimeout(() => { t.classList.add(s); updateKey(t.textContent, s); }, c * 120);
   }
 }
 
