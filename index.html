@@ -7,8 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="wordle.css" />
-    <script defer src="wordle.js"></script>
+    <!-- Use the new smaller CSS file -->
+    <link rel="stylesheet" href="wordle5.v2.1.css" />
+    <!-- Keep your existing JS file name -->
+    <script defer src="wordle5.v2.js"></script>
   </head>
   <body>
     <div class="app">
@@ -22,17 +24,14 @@
           </button>
         </div>
       </header>
-
       <main class="stage">
         <section class="board-wrap">
           <div id="board" class="board" aria-live="polite" aria-label="Game board"></div>
         </section>
-
         <section class="keyboard-wrap">
           <div id="keyboard" class="keyboard" aria-label="On-screen keyboard"></div>
         </section>
       </main>
-
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </div>
   </body>
