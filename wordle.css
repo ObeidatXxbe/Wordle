@@ -1,113 +1,100 @@
-/* ===== Config ===== */
-const WIDTH = 5;
-const HEIGHT = 6;
-/* ===== Single Big Word List (5-letter) ===== */
-const WORDS = ["about","above","abuse","actor","acute","admit","adopt","adult","after","again","agent","agree","ahead","alarm","album","alert","alike","alive","allow","alone","along","alter","among","angel","anger","angle","angry","apart","apple","apply","arena","argue","arise","award","aware","badge","baker","based","basic","basis","beach","beard","begin","being","below","birth","black","blame","blind","block","blood","board","boost","booth","bound","brain","brand","bread","break","breed","brief","bring","broad","brown","buyer","cabin","cable","cadet","camel","candy","carry","carve","catch","cause","chain","chair","chart","chase","cheap","check","chess","chest","chief","child","choir","claim","clean","clear","clerk","cliff","climb","clock","close","cloth","cloud","coach","coast","color","comet","comic","comma","coral","cover","crack","craft","crane","crash","cream","creek","crest","crime","cross","crowd","crown","crude","cruel","crush","curve","cycle","daily","dairy","dance","dealt","death","decay","delay","depth","devil","diary","dirty","donor","drink","drive","drums","dying","eager","early","earth","eight","elbow","elder","elect","elite","empty","enter","entry","equal","error","event","every","exact","exist","extra","faith","false","fancy","fatal","favor","feast","feels","fence","ferry","fiber","field","fifth","fifty","fight","final","first","flame","flash","fleet","flesh","flour","fluid","flush","focus","force","forge","forum","found","frame","fraud","fresh","front","frost","fruit","fully","funds","gains","giant","given","glass","globe","glory","glove","grace","grade","grain","grand","grant","graph","grass","grave","great","green","greet","group","grown","guard","guess","guest","guide","guild","guilt","habit","happy","harsh","heart","heavy","hello","honey","honor","horse","hotel","house","human","humor","ideal","image","imply","index","infer","input","inner","irony","issue","ivory","jeans","jelly","judge","juice","juicy","knack","knife","knock","known","label","labor","lakes","large","later","laugh","layer","learn","lease","least","leave","legal","level","lever","light","limit","linen","liner","links","lions","lipid","lists","liver","lives","local","logic","loose","loyal","lucky","lunar","lunch","magic","major","maker","maple","march","match","maybe","mayor","media","medic","meets","melon","merit","metal","meter","might","minor","minus","mixed","model","money","month","moral","motor","mount","movie","music","naked","nerve","never","newer","newly","night","ninja","noble","noise","nomad","north","novel","nurse","ocean","offer","often","olive","omega","onion","opera","orbit","order","organ","other","outer","oxide","owner","paint","panel","paper","party","pasta","patch","paths","patio","pause","peace","pearl","pecan","penny","perch","phase","phone","photo","piano","piece","pilot","pixel","place","plain","plane","plant","plate","plays","plaza","pluck","point","polar","porch","pride","prime","print","prior","prize","probe","proud","prove","pulse","punch","pupil","puppy","queen","query","quiet","quilt","quota","quote","racer","radio","raise","range","rapid","ratio","reach","react","ready","realm","rebel","refer","relax","relay","renew","repay","reply","reset","retro","ridge","rigid","river","robot","rocks","rogue","roman","rough","round","route","royal","rugby","ruins","ruler","rumor","safer","saint","salad","sandy","scale","scare","scene","scent","score","scout","seedl","serve","seven","shade","shaft","shake","shame","shape","share","shark","sharp","sheep","sheer","shelf","shine","shirt","shock","shoot","shore","short","shown","siege","sight","sigma","silly","since","siren","sites","sixth","skill","skirt","skull","slack","slave","sleek","slice","slide","slope","small","smart","smell","smile","smoke","snack","snail","snake","sneak","solar","solid","solve","sonic","sooth","sorry","sound","south","space","spare","spark","spice","spike","spine","spite","split","spoil","spoke","spoon","sport","spout","spray","stack","stage","stain","stair","stake","stamp","stand","stark","start","state","steam","steel","steep","still","stock","stone","stool","store","storm","story","stove","strap","straw","strip","stuck","study","stuff","style","sugar","suite","super","surge","swear","sweat","sweep","sweet","swift","swirl","sword","table","taken","tally","tango","taper","teach","teeth","there","thick","thief","thing","think","third","thorn","those","three","thumb","tiger","tight","title","toast","token","tonic","topic","torch","total","touch","tough","tower","track","trade","trail","train","trait","trash","treat","trend","trial","tribe","truck","truly","trust","truth","tulip","twice","ultra","uncle","under","union","unity","until","upper","upset","urban","usage","usual","valid","value","vapor","vegan","velar","venue","verse","video","viral","visit","vital","vivid","vocal","voice","voter","vouch","wagon","waist","watch","water","weary","weigh","whale","wheat","wheel","where","which","while","white","whole","whose","witch","witty","woman","world","worry","worse","worth","wrath","write","wrong","yacht","yearn","yeast","young","youth","zesty","zonal"];
-const ALL_ALLOWED = new Set(WORDS);
-/* ===== State ===== */
-let answer = "";
-let row = 0, col = 0;
-let gameOver = false;
-/* ===== DOM ===== */
-const $ = (q) => document.querySelector(q);
-const board = document.getElementById('board');
-const keyboardEl = document.getElementById('keyboard');
-const toast = document.getElementById('toast');
-/* ===== Init ===== */
-window.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.classList.remove('theme-light','theme-dark');
-  document.documentElement.classList.add(savedTheme === 'dark' ? 'theme-dark' : 'theme-light');
-  document.getElementById('new-game').addEventListener('click', newGame);
-  document.getElementById('theme-toggle').addEventListener('click', () => {
-    const isDark = document.documentElement.classList.contains('theme-dark');
-    document.documentElement.classList.toggle('theme-dark', !isDark);
-    document.documentElement.classList.toggle('theme-light', isDark);
-    localStorage.setItem('theme', isDark ? 'light' : 'dark');
-  });
-  document.addEventListener('keydown', onKey);
-  drawKeyboard();
-  newGame();
-});
-/* ===== Game ===== */
-function pickWord() { return WORDS[Math.floor(Math.random() * WORDS.length)]; }
-function newGame() {
-  answer = pickWord();
-  row = 0; col = 0; gameOver = false;
-  toastMsg("");
-  board.style.setProperty('--rows', HEIGHT);
-  board.style.setProperty('--cols', WIDTH);
-  board.innerHTML = "";
-  for (let r = 0; r < HEIGHT; r++) {
-    for (let c = 0; c < WIDTH; c++) {
-      const t = document.createElement('div');
-      t.className = 'tile'; t.id = `t-${r}-${c}`;
-      board.appendChild(t);
-    }
-  }
-  keyboardEl.querySelectorAll('.key').forEach(k => k.classList.remove('correct','present','absent'));
+/* ===== CSS Variables (themes) ===== */
+:root {
+  --bg: #0b0c0f;
+  --card: #12141a;
+  --text: #e9eef4;
+  --muted: #9aa6b2;
+  --tile: #1a1f29;
+  --tile-border: #2a3140;
+  --key: #1c2230;
+  --key-border: #2b3344;
+  --accent: #7c9aff;
+  --ok: #58b368;      /* correct */
+  --warn: #c8b458;    /* present */
+  --miss: #787c7e;    /* absent */
+  --shadow: 0 8px 24px rgba(0, 0, 0, .35);
 }
-/* ===== Keyboard ===== */
-const ROWS = [
-  ['q','w','e','r','t','y','u','i','o','p'],
-  ['a','s','d','f','g','h','j','k','l'],
-  ['Enter','z','x','c','v','b','n','m','Backspace']
-];
-function drawKeyboard() {
-  keyboardEl.innerHTML = '';
-  ROWS.forEach(r => {
-    const rowEl = document.createElement('div'); rowEl.className = 'k-row';
-    r.forEach(key => {
-      const k = document.createElement('button');
-      k.className = 'key' + (key.length > 1 ? ' wide' : '');
-      k.textContent = key === 'Backspace' ? '⌫' : key; k.dataset.key = key;
-      k.addEventListener('click', () => onKey({key}));
-      rowEl.appendChild(k);
-    });
-    keyboardEl.appendChild(rowEl);
-  });
+.theme-light, .theme-light :root {
+  --bg: #f6f8fb;
+  --card: #ffffff;
+  --text: #0e1521;
+  --muted: #5c6977;
+  --tile: #f0f3f8;
+  --tile-border: #dfe6ef;
+  --key: #e9eef5;
+  --key-border: #d6dee9;
+  --accent: #3b6cff;
+  --ok: #2ab673;
+  --warn: #c79a2a;
+  --miss: #98a2ad;
+  --shadow: 0 10px 30px rgba(10, 30, 60, .08);
 }
-/* ===== Input Handling ===== */
-function onKey(e) {
-  if (gameOver) return;
-  const key = (e.key || '').toLowerCase();
-  if (key === 'enter') return submit();
-  if (key === 'backspace' || key === 'delete') return backspace();
-  if (/^[a-z]$/.test(key)) {
-    if (col < WIDTH) {
-      const t = tile(row, col); t.textContent = key; t.classList.add('filled'); col++;
-    }
-  }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1200px 800px at 50% -200px, rgba(124,154,255,.25), transparent 60%), var(--bg);
+  color: var(--text);
 }
-function backspace() {
-  if (col > 0) { col--; const t = tile(row, col); t.textContent=''; t.classList.remove('filled'); }
+.app { max-width: 820px; margin: 0 auto; padding: 24px 16px 40px; }
+.app-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  position: sticky; top: 0; z-index: 2; padding-bottom: 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,.06), transparent);
 }
-function submit() {
-  if (col < WIDTH) { shakeRow(row); return toastMsg('Not enough letters'); }
-  const guess = rowWord(row);
-  if (!ALL_ALLOWED.has(guess)) { shakeRow(row); return toastMsg('Not in word list'); }
-  const res = evaluate(guess, answer);
-  revealRow(row, res); // no flip animation
-  if (res.every(s => s === 'correct')) { gameOver = true; toastMsg('You got it!'); return; }
-  row++; col = 0;
-  if (row >= HEIGHT) { gameOver = true; toastMsg(answer.toUpperCase()); }
+.title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.pill { display: inline-block; font-size: 14px; font-weight: 700; padding: 4px 8px; border-radius: 999px; background: var(--accent); color:#fff; }
+.controls { display:flex; align-items:center; gap:10px; }
+.btn {
+  height: 40px; min-width: 40px; border: 1px solid var(--tile-border); background: var(--card);
+  border-radius: 10px; box-shadow: var(--shadow); color: var(--text); font-weight: 600; padding: 0 12px; cursor: pointer;
 }
-/* ===== Helpers ===== */
-function tile(r,c) { return document.getElementById(`t-${r}-${c}`); }
-function rowWord(r) { let s=''; for (let c=0;c<WIDTH;c++) s+=tile(r,c).textContent.toLowerCase(); return s; }
-function evaluate(guess,target) {
-  const res = Array(WIDTH).fill('absent'); const counts = {};
-  for (let i=0;i<WIDTH;i++) counts[target[i]] = (counts[target[i]]||0)+1;
-  for (let i=0;i<WIDTH;i++) if (guess[i]===target[i]) { res[i]='correct'; counts[guess[i]]--; }
-  for (let i=0;i<WIDTH;i++) if (res[i]!=='correct' && counts[guess[i]]>0) { res[i]='present'; counts[guess[i]]--; }
-  return res;
+.btn.ghost { background: transparent; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+#theme-toggle .icon { display: none; }
+.theme-light #theme-toggle .sun { display: inline; }
+.theme-light #theme-toggle .moon { display: none; }
+.theme-dark  #theme-toggle .sun { display: none; }
+.theme-dark  #theme-toggle .moon { display: inline; }
+/* Stage */
+.stage { display: grid; grid-template-rows: 1fr auto; gap: 24px; }
+.board-wrap { display:grid; place-items:center; }
+.board {
+  display: grid;
+  grid-template-rows: repeat(var(--rows, 6), 1fr);
+  grid-template-columns: repeat(var(--cols, 5), 1fr);
+  gap: 8px; padding: 16px; width: min(92vw, 520px);
+  aspect-ratio: var(--cols,5) / var(--rows,6);
+  border-radius: 16px; background: var(--card); border: 1px solid var(--tile-border); box-shadow: var(--shadow);
 }
-function revealRow(r, states) { for (let c=0;c<WIDTH;c++) { const t=tile(r,c); const s=states[c]; setTimeout(()=>{ t.classList.add(s); updateKey(t.textContent,s); }, c*120); } }
-function updateKey(letter,state) {
-  const k = keyboardEl.querySelector(`[data-key="${letter}"]`); if (!k) return;
-  const priority={correct:3,present:2,absent:1};
-  const current = k.classList.contains('correct') ? 'correct' : (k.classList.contains('present') ? 'present' : (k.classList.contains('absent') ? 'absent' : null));
-  if (!current || priority[state] > priority[current]) { k.classList.remove('correct','present','absent'); k.classList.add(state); }
+.tile {
+  display:grid; place-items:center; font-weight:800; font-size: clamp(18px,5vw,28px); text-transform: uppercase;
+  border:2px solid var(--tile-border); background: var(--tile); border-radius:10px;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
 }
-function shakeRow(r) { for (let c=0;c<WIDTH;c++) tile(r,c).classList.add('shake'); setTimeout(()=>{ for (let c=0;c<WIDTH;c++) tile(r,c).classList.remove('shake'); },420); }
-function toastMsg(msg) { toast.textContent = msg || ''; toast.classList.toggle('show', !!msg); if (msg) setTimeout(()=>toast.classList.remove('show'), 1400); }
+.tile.filled { border-color: var(--accent); }
+.tile.shake { animation: shake .4s ease both; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.tile.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
+.tile.present { background: var(--warn); color:#fff; border-color: var(--warn); }
+.tile.absent  { background: var(--miss); color:#fff; border-color: var(--miss); }
+/* Keyboard */
+.keyboard { display:grid; gap:8px; }
+.k-row { display:grid; grid-auto-flow: column; gap:8px; justify-content:center; }
+.key {
+  min-width:34px; height:46px; padding:0 10px; display:grid; place-items:center;
+  background: var(--key); border:1px solid var(--key-border); border-radius:10px;
+  font-weight:700; text-transform:uppercase; user-select:none; cursor:pointer;
+}
+.key.wide { min-width:68px; }
+.key.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
+.key.present { background: var(--warn); color:#fff; border-color: var(--warn); }
+.key.absent  { background: var(--miss); color:#fff; border-color: var(--miss); }
+/* Toast */
+.toast {
+  position: fixed; left:50%; bottom:20px; transform: translateX(-50%);
+  background: var(--card); color: var(--text); border:1px solid var(--tile-border);
+  border-radius:999px; padding:10px 14px; box-shadow: var(--shadow); opacity:0; pointer-events:none; transition: opacity .2s ease;
+}
+.toast.show { opacity:1; }
