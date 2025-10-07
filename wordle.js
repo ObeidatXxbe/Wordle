@@ -1,111 +1,102 @@
-/* ===== Config ===== */
-const WIDTH = 5;
-const HEIGHT = 6;
+/* ===== Word sources ===== */
+let WORDS = [];                 // allowed guesses
+let ALL_ALLOWED = new Set();    // Set for O(1) lookups
 
-/* ===== Word list ===== */
-let WORDS = [];
-let ALL_ALLOWED = new Set();
+// Optional: a small curated set for ANSWERS (so the target isn't too obscure)
+const CURATED_ANSWERS = ["apple","train","light","sound","grain","crane","pride","clean","spice","pilot"];
+const USE_BIG_LIST_FOR_ANSWERS = true; // set false to pick from CURATED_ANSWERS
 
-// fallback list (so the UI always renders)
-const FALLBACK_WORDS = ["apple", "plane", "candy", "light", "train", "music", "smile", "sound", "watch", "water"];
+/* ===== Load big dictionary with caching ===== */
+const WORDLIST_CACHE_KEY = "wordlist_v1";   // bump to v2 if you change filter logic
+const WORDLIST_CACHE_COUNT = "wordlist_v1_count";
 
-/* ===== State ===== */
-let answer = "";
-let row = 0, col = 0;
-let gameOver = false;
+async function loadWordList() {
+  // 1) Try cache first
+  const cached = localStorage.getItem(WORDLIST_CACHE_KEY);
+  if (cached) {
+    try {
+      WORDS = JSON.parse(cached);
+      ALL_ALLOWED = new Set(WORDS);
+      console.log(`Loaded ${localStorage.getItem(WORDLIST_CACHE_COUNT)} words from cache`);
+      // Start a new game (if one isn't already running)
+      if (!answer) newGame();
+      // Also refresh cache in the background (non-blocking)
+      refreshWordListInBackground();
+      return;
+    } catch {}
+  }
 
-/* ===== DOM ===== */
-const board = document.getElementById('board');
-const keyboardEl = document.getElementById('keyboard');
-const toast = document.getElementById('toast');
-
-/* ===== Init ===== */
-window.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.classList.toggle('theme-dark', savedTheme === 'dark');
-  document.documentElement.classList.toggle('theme-light', savedTheme !== 'dark');
-
-  document.getElementById('new-game').addEventListener('click', newGame);
-  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-
-  drawKeyboard();     // always draw keyboard
-  buildBoard();       // always draw tiles
-
-  // start with fallback so it’s playable right away
-  WORDS = [...FALLBACK_WORDS];
-  ALL_ALLOWED = new Set(WORDS);
-  newGame();
-
-  // then load your big words.txt asynchronously
-  loadWordList();
-});
-
-/* ===== Theme toggle ===== */
-function toggleTheme() {
-  const isDark = document.documentElement.classList.contains('theme-dark');
-  document.documentElement.classList.toggle('theme-dark', !isDark);
-  document.documentElement.classList.toggle('theme-light', isDark);
-  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  // 2) Fetch and parse words.txt
+  await refreshWordListInBackground(true);
 }
 
-/* ===== Load big dictionary ===== */
-async function loadWordList() {
+async function refreshWordListInBackground(startGameAfter = false) {
   try {
-    const res = await fetch('words.txt'); // must be same folder as index.html
+    const res = await fetch("words.txt", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
-    const list = text.split(/\r?\n/).map(w => w.trim().toLowerCase()).filter(w => /^[a-z]{5}$/.test(w));
 
-    if (list.length > 0) {
-      WORDS = list;
-      ALL_ALLOWED = new Set(list);
-      console.log(`Loaded ${list.length} words from words.txt`);
-      newGame(); // restart game using your big dictionary
-    } else {
-      console.warn('words.txt contained no 5-letter words, using fallback.');
+    // Filter: keep only 5-letter a-z and de-dup
+    // (This yields ~#lines where each line is one word)
+    const seen = new Set();
+    const list = [];
+    for (const line of text.split(/\r?\n/)) {
+      const w = line.trim().toLowerCase();
+      if (w.length === 5 && /^[a-z]{5}$/.test(w) && !seen.has(w)) {
+        seen.add(w);
+        list.push(w);
+      }
     }
-  } catch (err) {
-    console.error('Error loading words.txt:', err);
-    toastMsg('Could not load words.txt');
+
+    // Cache
+    localStorage.setItem(WORDLIST_CACHE_KEY, JSON.stringify(list));
+    localStorage.setItem(WORDLIST_CACHE_COUNT, String(list.length));
+
+    WORDS = list;
+    ALL_ALLOWED = new Set(list);
+    console.log(`Parsed & cached ${list.length} 5-letter words from words.txt`);
+
+    if (startGameAfter) newGame();        // first load
+    else if (USE_BIG_LIST_FOR_ANSWERS) {  // if already playing & you want new words immediately
+      // optional: don’t interrupt current game;
+      // next New Game will use the big list automatically.
+    }
+  } catch (e) {
+    console.error("Failed to load words.txt", e);
+    // Keep whatever we had (maybe fallback) so the game stays playable.
   }
 }
 
-/* ===== Build board ===== */
-function buildBoard() {
-  board.style.setProperty('--rows', HEIGHT);
-  board.style.setProperty('--cols', WIDTH);
-  board.innerHTML = '';
-  for (let r = 0; r < HEIGHT; r++) {
-    for (let c = 0; c < WIDTH; c++) {
-      const t = document.createElement('div');
-      t.className = 'tile';
-      t.id = `t-${r}-${c}`;
-      board.appendChild(t);
-    }
+/* ===== Picking an answer ===== */
+function pickWord() {
+  if (USE_BIG_LIST_FOR_ANSWERS && WORDS.length > 0) {
+    // Cryptographically-strong random index (nice to have for big lists)
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    const idx = buf[0] % WORDS.length;
+    return WORDS[idx];
   }
+  // fallback to curated if big list not ready
+  return CURATED_ANSWERS[Math.floor(Math.random() * CURATED_ANSWERS.length)];
 }
 
-/* ===== Draw keyboard ===== */
-const ROWS = [
-  ['q','w','e','r','t','y','u','i','o','p'],
-  ['a','s','d','f','g','h','j','k','l'],
-  ['Enter','z','x','c','v','b','n','m','Backspace']
-];
-function drawKeyboard() {
-  keyboardEl.innerHTML = '';
-  ROWS.forEach(r => {
-    const rowEl = document.createElement('div');
-    rowEl.className = 'k-row';
-    r.forEach(key => {
-      const k = document.createElement('button');
-      k.className = 'key' + (key.length > 1 ? ' wide' : '');
-      k.textContent = key === 'Backspace' ? '⌫' : key;
-      k.dataset.key = key;
-      k.addEventListener('click', () => onKey({ key }));
-      rowEl.appendChild(k);
-    });
-    keyboardEl.appendChild(rowEl);
-  });
-}
+/* ===== Init (simplified) ===== */
+window.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  document.documentElement.classList.toggle("theme-dark", savedTheme === "dark");
+  document.documentElement.classList.toggle("theme-light", savedTheme !== "dark");
 
-/* ===== The rest of your game logic (onKey, backspace, submit, etc.) stays the same ===== */
+  document.getElementById("new-game").addEventListener("click", newGame);
+  document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+  document.addEventListener("keydown", onKey);
+
+  drawKeyboard();
+  buildBoard();
+
+  // Start with curated so it’s instantly playable, then swap to big list
+  ALL_ALLOWED = new Set(CURATED_ANSWERS);
+  WORDS = [...CURATED_ANSWERS];
+  newGame();
+
+  loadWordList(); // will replace WORDS/ALL_ALLOWED + cache
+});
