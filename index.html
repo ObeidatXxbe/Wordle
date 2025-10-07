@@ -1,23 +1,52 @@
+<!doctype html>
+<html lang="en" class="theme-light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wordle — 6 Letters</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="wordle.css" />
+    <script defer src="wordle.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <h1 class="title">Wordle <span class="pill">6</span></h1>
 
+        <div class="controls">
+          <div class="segmented" role="group" aria-label="Difficulty selector">
+            <input type="radio" id="diff-easy"   name="difficulty" value="easy" checked>
+            <label for="diff-easy">Easy</label>
 
-<html>
-    <head>
-        <title>Wordle</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale = 1.0">
+            <input type="radio" id="diff-medium" name="difficulty" value="medium">
+            <label for="diff-medium">Medium</label>
 
-        <link rel="stylesheet" href="wordle.css">
-        <script src="wordle.js"></script>
-    </head>
+            <input type="radio" id="diff-hard"   name="difficulty" value="hard">
+            <label for="diff-hard">Hard</label>
+          </div>
 
-    <body>
-        <h1 id="title">Wordle</h1>
-        <hr>
-        <br>
-        <div id="board">
+          <button id="new-game" class="btn ghost" title="New Game" aria-label="Start a new game">↻</button>
+
+          <button id="theme-toggle" class="btn" title="Toggle theme" aria-label="Toggle light/dark">
+            <span class="icon sun" aria-hidden="true">☀️</span>
+            <span class="icon moon" aria-hidden="true">🌙</span>
+          </button>
         </div>
+      </header>
 
-        <br>
-        <h1 id="answer"></h1>
-    </body>
+      <main class="stage">
+        <section class="board-wrap">
+          <div id="board" class="board" aria-live="polite" aria-label="Game board"></div>
+        </section>
+
+        <section class="keyboard-wrap">
+          <div id="keyboard" class="keyboard" aria-label="On-screen keyboard"></div>
+        </section>
+      </main>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+  </body>
 </html>
