@@ -1,3 +1,4 @@
+
 /* ===== Config ===== */
 const WIDTH = 5;
 const HEIGHT = 6;
