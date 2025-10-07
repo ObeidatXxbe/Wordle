@@ -62,16 +62,59 @@ body{
 .tile.present{background:var(--warn);color:#fff;border-color:var(--warn)}
 .tile.absent{background:var(--miss);color:#fff;border-color:var(--miss)}
 
-/* Keyboard: tighter keys + spacing */
-.keyboard{display:grid;gap:6px}
-.k-row{display:grid;grid-auto-flow:column;gap:6px;justify-content:center}
-.key{
-  min-width:30px;height:40px;padding:0 8px;
-  display:grid;place-items:center;
-  background:var(--key);border:1px solid var(--key-border);border-radius:9px;
-  font-weight:700;text-transform:uppercase;user-select:none;cursor:pointer;
+/* Keyboard: larger keys + better spacing */
+.keyboard {
+  display: grid;
+  gap: 8px;
 }
-.key.wide{min-width:60px}
+
+.k-row {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.key {
+  min-width: 42px;   /* was 30px */
+  height: 56px;      /* was 40px */
+  padding: 0 10px;
+  display: grid;
+  place-items: center;
+  background: var(--key);
+  border: 1px solid var(--key-border);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.05rem; /* slightly larger text */
+  text-transform: uppercase;
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 0 2px 3px rgba(0,0,0,.2);
+  transition: transform .1s ease;
+}
+
+.key:active {
+  transform: scale(0.96);
+}
+
+.key.wide {
+  min-width: 82px; /* make Enter and Backspace wider */
+}
+
+/* Status coloring preserved */
+.key.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
+.key.present { background: var(--warn); color:#fff; border-color: var(--warn); }
+.key.absent  { background: var(--miss); color:#fff; border-color: var(--miss); }
+
+/* Dark mode: keyboard letters white (only the keyboard text) */
+.theme-dark .key { color:#fff; }
+
+/* Small screens: scale down */
+@media (max-width:480px) {
+  .key { min-width: 34px; height: 48px; font-size: .95rem; }
+  .key.wide { min-width: 72px; }
+}
+
 /* Status coloring preserved */
 .key.correct{background:var(--ok);color:#fff;border-color:var(--ok)}
 .key.present{background:var(--warn);color:#fff;border-color:var(--warn)}
@@ -88,3 +131,4 @@ body{
   .key{min-width:28px;height:38px;padding:0 6px;border-radius:8px}
   .key.wide{min-width:56px}
 }
+
